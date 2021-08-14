@@ -3,7 +3,7 @@ from django.shortcuts import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import generic
 from agents.mixins import OrganisorAndLoginRequiredMixin
-from .models import Lead
+from .models import Lead, Category
 from .forms import LeadModelForm, CustomUserCreationForm, AssignAgentForm
 
 
@@ -106,3 +106,24 @@ class AssignAgentView(OrganisorAndLoginRequiredMixin, generic.FormView):
         lead.agent = agent
         lead.save()
         return super(AssignAgentView, self).form_valid(form)
+
+
+class CategoryListView(LoginRequiredMixin, generic.ListView):
+    template_name = "leads/category_list.html"
+    context_object_name = "category_list"
+
+    def get_context_data(self, **kwargs):
+        context = super(CategoryListView, self).get_context_data(**kwargs)
+        if self.request.user.is_organisor:
+            queryset = Lead.objects.filter(organisation=self.request.user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organisation=self.request.user.agent.organisation)
+        context.update({"unassigned_lead_count": queryset.filter(category__isnull=True).count()})
+        return context
+
+    def get_queryset(self):
+        if self.request.user.is_organisor:
+            queryset = Category.objects.filter(organisation=self.request.user.userprofile)
+        else:
+            queryset = Category.objects.filter(organisation=self.request.user.agent.organisation)
+        return queryset

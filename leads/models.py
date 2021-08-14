@@ -9,22 +9,23 @@ class User(AbstractUser):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField("User", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username
 
 class Agent(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.OneToOneField("User", on_delete=models.CASCADE)
+    organisation = models.ForeignKey("UserProfile", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username
 
 
 class Lead(models.Model):
-    agent = models.ForeignKey(Agent, null=True, blank=True, on_delete=models.SET_NULL)
-    organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    agent = models.ForeignKey("Agent", null=True, blank=True, on_delete=models.SET_NULL)
+    organisation = models.ForeignKey("UserProfile", on_delete=models.CASCADE)
+    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True)
     first_name = models.CharField(max_length=20)
     last_name  = models.CharField(max_length=20)
     age = models.IntegerField(default=0)
@@ -38,3 +39,12 @@ def post_user_created_signal(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
 
 post_save.connect(post_user_created_signal, sender=User)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=20)
+    organisation = models.ForeignKey("UserProfile", on_delete=models.CASCADE)
+
+
+    def __str__(self):
+        return self.name
