@@ -11,7 +11,7 @@ User = get_user_model()
 class LeadModelForm(forms.ModelForm):
     class Meta:
         model = Lead
-        fields = ('first_name', 'last_name', 'age', 'agent')
+        fields = ('first_name', 'last_name', 'age', 'agent', 'description', 'phone_number', 'email')
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -28,3 +28,9 @@ class AssignAgentForm(forms.Form):
         request = kwargs.pop("request")
         super(AssignAgentForm, self).__init__(*args, **kwargs)
         self.fields["agent"].queryset = Agent.objects.filter(organisation=request.user.userprofile)
+
+
+class LeadCategoryUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Lead
+        fields = ('category',)
