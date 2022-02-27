@@ -1,2 +1,2 @@
 # CRM
-Fully functional CRM created with django
+Fully functional Customer Relationship Management system
